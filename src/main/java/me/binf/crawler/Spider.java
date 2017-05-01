@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +28,11 @@ public class Spider implements Runnable{
     protected PageProcessor pageProcessor;
 
     protected Downloader downloader ;
+
+    protected int threadNum = 1;
+
+    protected ExecutorService executorService;
+
 
     protected CountableThreadPool threadPool;
 
@@ -57,6 +63,13 @@ public class Spider implements Runnable{
         if (downloader == null) {
             this.downloader = new UrlDownloader();
         }
+        if (threadPool == null || threadPool.isShutdown()) {
+            if (executorService != null && !executorService.isShutdown()) {
+                threadPool = new CountableThreadPool(threadNum, executorService);
+            } else {
+                threadPool = new CountableThreadPool(threadNum);
+            }
+        }
         if(startUrls!=null){
             startUrls.forEach(url->{
                 scheduler.push(url);
@@ -86,7 +99,19 @@ public class Spider implements Runnable{
             if(url==null){
                 waitNewUrl();
             }else{
-                processorPage(url);
+                threadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            processorPage(url);
+                        } catch (Exception e) {
+                            logger.error("process request " + url + " error", e);
+                        } finally {
+
+                        }
+                    }
+                });
+
             }
         }
     }

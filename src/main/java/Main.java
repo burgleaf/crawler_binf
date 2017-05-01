@@ -32,7 +32,7 @@ public class Main implements PageProcessor{
 
     @Override
     public Site getSite() {
-        return Site.me().addStartUrl("https://charsdavy.github.io/2017/04/23/japanese-honorific-tongue/");
+        return Site.me().addStartUrl("http://www.cnblogs.com/dongdone/p/5750272.html");
     }
 
 
