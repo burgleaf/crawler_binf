@@ -1,15 +1,20 @@
 package me.binf.crawler;
 
+import com.xiaoleilu.hutool.log.Log;
+import com.xiaoleilu.hutool.log.LogFactory;
+import com.xiaoleilu.hutool.log.dialect.log4j2.Log4j2LogFactory;
 import me.binf.crawler.downloader.Downloader;
 import me.binf.crawler.downloader.UrlDownloader;
+import me.binf.crawler.pipeline.ConsolePipeline;
+import me.binf.crawler.pipeline.Pipeline;
 import me.binf.crawler.processor.PageProcessor;
 import me.binf.crawler.scheduler.QueueScheduler;
 import me.binf.crawler.scheduler.Scheduler;
 import me.binf.crawler.thread.CountableThreadPool;
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,13 +26,19 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Spider implements Runnable{
 
-    protected Logger logger = LoggerFactory.getLogger(getClass());
+    Log log = Log4j2LogFactory.get();
+
+
 
     protected List<String> startUrls;
 
     protected PageProcessor pageProcessor;
 
     protected Downloader downloader ;
+
+
+    protected List<Pipeline> pipelines = new ArrayList<Pipeline>();
+
 
     protected int threadNum = 1;
 
@@ -63,12 +74,8 @@ public class Spider implements Runnable{
         if (downloader == null) {
             this.downloader = new UrlDownloader();
         }
-        if (threadPool == null || threadPool.isShutdown()) {
-            if (executorService != null && !executorService.isShutdown()) {
-                threadPool = new CountableThreadPool(threadNum, executorService);
-            } else {
-                threadPool = new CountableThreadPool(threadNum);
-            }
+        if(pipelines.isEmpty()){
+            pipelines.add(new ConsolePipeline());
         }
         if(startUrls!=null){
             startUrls.forEach(url->{
@@ -84,7 +91,7 @@ public class Spider implements Runnable{
         try {
             newUrlCondition.await(emptySleepTime, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            logger.warn("waitNewUrl - interrupted, error {}", e);
+            log.warn("waitNewUrl - interrupted, error {}", e);
         } finally {
             newUrlLock.unlock();
         }
@@ -99,19 +106,7 @@ public class Spider implements Runnable{
             if(url==null){
                 waitNewUrl();
             }else{
-                threadPool.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            processorPage(url);
-                        } catch (Exception e) {
-                            logger.error("process request " + url + " error", e);
-                        } finally {
-
-                        }
-                    }
-                });
-
+                processorPage(url);
             }
         }
     }
@@ -121,6 +116,9 @@ public class Spider implements Runnable{
         Page page =downloader.download(url);
         pageProcessor.process(page);
         extractAndAddRequests(page);
+        pipelines.forEach(pipeline -> {
+            pipeline.process(page.getResultItems());
+        });
     }
 
 
