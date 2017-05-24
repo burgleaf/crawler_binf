@@ -10,23 +10,37 @@ public class Site {
 
     private String domain;
 
-    protected List<String> startUrls = new ArrayList<>();
+    private String userAgent;
+
+    private String charset;
+
+
 
     public static Site me() {
         return new Site();
     }
 
-
-    public Site addStartUrl(String startUrl){
-        this.startUrls.add(startUrl);
-        return this;
+    public String getDomain() {
+        return domain;
     }
 
-    public List<String> getStartUrls() {
-        return startUrls;
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
-    public void setStartUrls(List<String> startUrls) {
-        this.startUrls = startUrls;
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 }

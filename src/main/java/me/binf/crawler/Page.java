@@ -14,22 +14,14 @@ public class Page {
 
     private ResultItems resultItems = new ResultItems();
 
-    private String url;
+    private Request request;
 
     private String rawText;
 
     private Document document;
 
-    private List<String> targetUrls = new ArrayList<>();
+    private List<Request> targetRequests = new ArrayList<Request>();
 
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
     public Document getDocument() {
         return document;
@@ -39,13 +31,6 @@ public class Page {
         this.document = document;
     }
 
-    public List<String> getTargetUrls() {
-        return targetUrls;
-    }
-
-    public void setTargetUrls(List<String> targetUrls) {
-        this.targetUrls = targetUrls;
-    }
 
     public String getRawText() {
         return rawText;
@@ -55,13 +40,31 @@ public class Page {
         this.rawText = rawText;
     }
 
+    public List<Request> getTargetRequests() {
+        return targetRequests;
+    }
 
-    public void addTargetRequest(String requestString) {
-        if (StringUtils.isBlank(requestString) || requestString.equals("#")) {
+    public void setTargetRequests(List<Request> targetRequests) {
+        this.targetRequests = targetRequests;
+    }
+
+    /**
+     * 添加一个request对象
+     * @param request
+     */
+    public void addTargetRequest(Request request) {
+        targetRequests.add(request);
+    }
+
+    /**
+     * 直接添加一个url
+     * @param requestString
+     */
+    public void addTargetRequest(String requestString){
+        if(StringUtils.isBlank(requestString)|| requestString.equals("#")){
             return;
         }
-        requestString = UrlUtils.canonicalizeUrl(requestString, url.toString());
-        targetUrls.add(requestString);
+        targetRequests.add(new Request(requestString));
     }
 
 
@@ -81,5 +84,14 @@ public class Page {
 
     public void setResultItems(ResultItems resultItems) {
         this.resultItems = resultItems;
+    }
+
+
+    public Request getRequest() {
+        return request;
+    }
+
+    public void setRequest(Request request) {
+        this.request = request;
     }
 }

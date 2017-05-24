@@ -17,7 +17,7 @@ public class Main implements PageProcessor{
     private static final Log logger = LogFactory.get();
 
     public static void main(String[] args) {
-        Spider spider =   Spider.create(new Main());
+        Spider spider =   Spider.create(new Main()).addUrl("http://www.cnblogs.com/76er/archive/2012/10/25/2738627.html");
         spider.run();
     }
 
@@ -25,11 +25,8 @@ public class Main implements PageProcessor{
     @Override
     public void process(Page page) {
 //        System.out.println(page.getRawText());
-
-
-        logger.info(page.getRawText());
-
-        page.putField(page.getDocument().select("title").toString(),page.getUrl());
+        logger.info(page.getRequest().getUrl());
+        page.putField(page.getDocument().select("title").toString(),page.getRequest().getUrl());
         Elements elements  =  page.getDocument().select("a[href]");
         elements.forEach(element -> {
             page.addTargetRequest(element.attr("href").toString());
@@ -42,7 +39,7 @@ public class Main implements PageProcessor{
 
     @Override
     public Site getSite() {
-        return Site.me().addStartUrl("http://www.oschina.net/");
+        return Site.me();
     }
 
 
