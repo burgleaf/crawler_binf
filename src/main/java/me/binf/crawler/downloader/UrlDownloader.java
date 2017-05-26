@@ -2,6 +2,7 @@ package me.binf.crawler.downloader;
 
 import me.binf.crawler.Page;
 import me.binf.crawler.Request;
+import me.binf.crawler.Site;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -18,7 +19,7 @@ public class UrlDownloader implements Downloader{
 
 
     @Override
-    public Page download(Request request) {
+    public Page download(Request request, Site site) {
         Page page = new Page();
         String rawText =  sendGet(request.getUrl());
         Document document = Jsoup.parse(rawText);

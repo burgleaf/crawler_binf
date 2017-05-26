@@ -1,5 +1,6 @@
 package me.binf.crawler;
 
+import me.binf.crawler.utils.HttpConstant;
 import me.binf.crawler.utils.UrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -18,10 +19,22 @@ public class Page {
 
     private String rawText;
 
+    private int statusCode = HttpConstant.StatusCode.CODE_200;
+
     private Document document;
 
     private List<Request> targetRequests = new ArrayList<Request>();
 
+    private boolean downloadSuccess = true;
+
+    public Page(){};
+
+
+    public static Page fail(){
+        Page page = new Page();
+        page.setDownloadSuccess(false);
+        return page;
+    }
 
     public Document getDocument() {
         return document;
@@ -93,5 +106,21 @@ public class Page {
 
     public void setRequest(Request request) {
         this.request = request;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public boolean isDownloadSuccess() {
+        return downloadSuccess;
+    }
+
+    public void setDownloadSuccess(boolean downloadSuccess) {
+        this.downloadSuccess = downloadSuccess;
     }
 }

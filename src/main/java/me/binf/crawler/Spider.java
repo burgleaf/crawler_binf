@@ -3,7 +3,7 @@ package me.binf.crawler;
 import com.xiaoleilu.hutool.log.Log;
 import com.xiaoleilu.hutool.log.dialect.log4j2.Log4j2LogFactory;
 import me.binf.crawler.downloader.Downloader;
-import me.binf.crawler.downloader.UrlDownloader;
+import me.binf.crawler.downloader.HttpClientDownloader;
 import me.binf.crawler.pipeline.ConsolePipeline;
 import me.binf.crawler.pipeline.Pipeline;
 import me.binf.crawler.processor.PageProcessor;
@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Spider implements Runnable{
 
-    private static final Log log = Log4j2LogFactory.get();
+    private static final Log logger = Log4j2LogFactory.get();
     //初始化url
     protected List<Request> startRequests;
 
@@ -34,7 +34,6 @@ public class Spider implements Runnable{
 
     //处理页面过滤后的数据
     protected List<Pipeline> pipelines = new ArrayList<Pipeline>();
-
 
 
     private ReentrantLock newUrlLock = new ReentrantLock();
@@ -61,7 +60,7 @@ public class Spider implements Runnable{
 
     protected void initComponent() {
         if (downloader == null) {
-            this.downloader = new UrlDownloader();
+            this.downloader = new HttpClientDownloader();
         }
         if(pipelines.isEmpty()){
             pipelines.add(new ConsolePipeline());
@@ -88,7 +87,7 @@ public class Spider implements Runnable{
         try {
             newUrlCondition.await(emptySleepTime, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            log.warn("waitNewUrl - interrupted, error {}", e);
+            logger.warn("waitNewUrl - interrupted, error {}", e);
         } finally {
             newUrlLock.unlock();
         }
@@ -110,14 +109,18 @@ public class Spider implements Runnable{
             if(request==null){
                 waitNewUrl();
             }else{
-                processorPage(request);
+                try {
+                    processorRequest(request);
+                }catch (Exception e){
+                    logger.error("process request " + request + " error", e);
+                }
             }
         }
     }
 
 
-    protected void processorPage(Request request){
-        Page page =downloader.download(request);
+    protected void processorRequest(Request request){
+        Page page =downloader.download(request,site);
         pageProcessor.process(page);
         extractAndAddRequests(page);
         pipelines.forEach(pipeline -> {
