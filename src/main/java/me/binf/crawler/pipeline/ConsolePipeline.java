@@ -1,5 +1,7 @@
 package me.binf.crawler.pipeline;
 
+import com.xiaoleilu.hutool.log.Log;
+import com.xiaoleilu.hutool.log.LogFactory;
 import me.binf.crawler.ResultItems;
 
 import java.util.Map;
@@ -9,11 +11,11 @@ import java.util.Map;
  */
 public class ConsolePipeline implements Pipeline{
 
-
+    private static final Log logger = LogFactory.get();
     @Override
     public void process(ResultItems resultItems) {
         resultItems.getAll().forEach((k,v)->{
-            System.out.println(k+":\t"+v);
+            logger.info(k+":\t"+v);
         });
     }
 }

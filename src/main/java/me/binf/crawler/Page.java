@@ -21,6 +21,8 @@ public class Page {
 
     private int statusCode = HttpConstant.StatusCode.CODE_200;
 
+    private String url;
+
     private Document document;
 
     private List<Request> targetRequests = new ArrayList<Request>();
@@ -77,6 +79,7 @@ public class Page {
         if(StringUtils.isBlank(requestString)|| requestString.equals("#")){
             return;
         }
+        requestString = UrlUtils.canonicalizeUrl(requestString, url);
         targetRequests.add(new Request(requestString));
     }
 
@@ -122,5 +125,14 @@ public class Page {
 
     public void setDownloadSuccess(boolean downloadSuccess) {
         this.downloadSuccess = downloadSuccess;
+    }
+
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

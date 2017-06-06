@@ -30,17 +30,13 @@ public class HttpClientDownloader implements Downloader{
 
     private HttpUriRequestConverter httpUriRequestConverter = new HttpUriRequestConverter();
 
-
     private CloseableHttpClient getHttpClient(Site site){
         if(site==null){
             return httpClientGenerator.generateClient(null);
         }else{
-
             return httpClientGenerator.generateClient(site);
         }
     }
-
-
 
 
     @Override
@@ -66,7 +62,6 @@ public class HttpClientDownloader implements Downloader{
                 EntityUtils.consumeQuietly(httpResponse.getEntity());
             }
         }
-
     }
 
 
@@ -75,13 +70,13 @@ public class HttpClientDownloader implements Downloader{
         Document document = Jsoup.parse(content);
         Page page = new Page();
         page.setRawText(content);
+        page.setUrl(request.getUrl());
         page.setDocument(document);
         page.setRequest(request);
         page.setStatusCode(httpResponse.getStatusLine().getStatusCode());
         page.setDownloadSuccess(true);
         return page;
     }
-
 
     private String getResponseContent(String charset, HttpResponse httpResponse) throws IOException {
         if (charset == null) {

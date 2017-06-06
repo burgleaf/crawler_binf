@@ -8,18 +8,13 @@ import org.jsoup.select.Elements;
 
 
 
-
 /**
  * Created by burgl on 2017/3/5.
  */
-public class Main implements PageProcessor{
+public class SghaoyaoProcessor implements PageProcessor{
 
     private static final Log logger = LogFactory.get();
 
-    public static void main(String[] args) {
-        Spider spider =   Spider.create(new Main()).addUrl("http://www.oschina.net/");
-        spider.run();
-    }
 
 
     @Override
@@ -29,15 +24,14 @@ public class Main implements PageProcessor{
         elements.forEach(element -> {
             page.addTargetRequest(element.attr("href").toString());
         });
-
-
-
     }
+
 
     @Override
     public Site getSite() {
-        return Site.me();
+        return Site.me().setDomain("http://www.sghaoyao.com").setSleepTime(100);
     }
+
 
 
 }
